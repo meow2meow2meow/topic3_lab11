@@ -21,6 +21,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun JoinButton(onClick: (Boolean) -> Unit = {}){
@@ -29,20 +35,61 @@ fun JoinButton(onClick: (Boolean) -> Unit = {}){
 
     val shape = RoundedCornerShape(corner = CornerSize(12.dp))
 
-    val buttonBackgroundColor: Color =
-        if(buttonState == JoinButtonState.PRESSED)
-            Color.White else
-            Color.Blue
+    val transition = updateTransition(
+        targetState = buttonState,
+        label = "JoinButtonTransition"
+    )
+
+    val duration = 600
+    val buttonBackgroundColor: Color by transition.animateColor (
+        transitionSpec = { tween(duration) },
+        label = "Button Background Color"
+    ) { state ->
+        when (state) {
+            JoinButtonState.IDLE -> Color.Blue
+            JoinButtonState.PRESSED -> Color.White
+        }
+    }
+
+    val buttonWidth: Dp
+            by transition.animateDp(
+                transitionSpec = { tween(duration) },
+                label = "Button Width"
+
+            ) { state ->
+                when (state){
+                    JoinButtonState.IDLE -> 70.dp
+                    JoinButtonState.PRESSED -> 32.dp
+                }
+            }
+
+    val textMaxWidth: Dp
+            by transition.animateDp(
+                transitionSpec = { tween(duration) },
+                label = "Text Max Width"
+            ) {state ->
+                when (state){
+                    JoinButtonState.IDLE -> 40.dp
+                    JoinButtonState.PRESSED -> 0.dp
+                }
+
+            }
 
     val iconAssert: ImageVector =
         if (buttonState == JoinButtonState.PRESSED)
             Icons.Default.Check else
             Icons.Default.Add
 
-    val iconTintColor: Color =
-        if (buttonState == JoinButtonState.PRESSED)
-            Color.Blue else
-            Color.White
+    val iconTintColor: Color
+            by transition.animateColor(
+                transitionSpec = { tween(duration)},
+                label = "Icon Tint Color"
+            ){state ->
+                when (state){
+                    JoinButtonState.IDLE -> Color.White
+                    JoinButtonState.PRESSED -> Color.Blue
+                }
+            }
 
     Box(
         modifier = Modifier
